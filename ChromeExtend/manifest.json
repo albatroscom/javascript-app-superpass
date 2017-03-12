@@ -1,0 +1,29 @@
+{
+  "background": {
+      "page": "background.html"
+   },
+
+  "manifest_version": 2,
+
+  "name": "Smart Login",
+  "description": "간편하게 로그인 하자! 스마트로그인",
+  "version": "1.0",
+	"content_scripts": [ {
+      "all_frames": true,
+      "content_security_policy": "script-src 'self' ; object-src 'self'",
+      "js": [ "jtScript.js"],
+      "matches": [ "\u003Call_urls>" ],
+      "run_at": "document_start"
+   }, {
+      "all_frames": false,
+      "js": [ "jtScript.js" ],
+      "matches": [ "\u003Call_urls>" ],
+      "run_at": "document_end"
+   } ],
+   
+  "permissions": [ "tabs", "webNavigation", "\u003Call_urls>" ],
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "simpleLogin.html"
+  }
+}
