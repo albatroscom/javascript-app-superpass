@@ -1,0 +1,389 @@
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+
+<STYLE type="text/css" >
+
+</STYLE>
+
+
+
+<script type="text/javascript" src="http://192.168.30.5/simple/simpleLayer.js"></script>
+<SCRIPT type="text/javascript">
+
+	window.onmessage = EasyLoginChildlistener;
+
+	var timerId;
+	var AutoFocus = 0;
+	var callParent = null;
+	var callFURL = "";
+	var title = "";
+		
+	function getPosition(element) {
+	
+		var xPosition = 0;
+		var yPosition = 0;
+		  
+		while (element) {
+			xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+			yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
+			element = element.offsetParent;
+		}
+		return { x: xPosition, y: yPosition };
+	}
+	
+	function isNumberKey(evt) {
+
+		var charCode = (evt.which) ? evt.which : event.keyCode;
+
+		if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57))
+			return false;
+
+		return true;
+	}
+	
+	function telcoFocus(){
+		if(AutoFocus == 0)
+		document.getElementById('tel2').focus();
+	}
+	function tel1Focus(){
+		if(AutoFocus == 0)
+		document.getElementById('tel2').focus();		
+	}
+	function MoveFocus()
+	{
+		if(AutoFocus == 0){
+			if(document.getElementById('tel1').value.length == 3)
+				document.getElementById('tel2').focus();
+			if(document.getElementById('tel2').value.length == 4)
+				document.getElementById('tel3').focus();
+			if(document.getElementById('tel2').value.length == 4 && document.getElementById('tel3').value.length == 4)
+				document.getElementById('check').focus();
+		}
+		
+	}
+	
+	function checkField()
+	{
+		var telcodata = document.getElementById('telco').value;
+		if(telcodata == "")
+		{
+			alert('이통사를 선택해 주세요.');
+			return false;
+		}
+		
+		if(document.getElementById('tel1').value == "" || document.getElementById('tel2').value.length < 3 || document.getElementById('tel3').value.length < 4)
+		{
+			alert('휴대폰 번호를 정확히 입력해 주세요.');
+			return false;
+		}				
+		return true;
+	}
+	
+	function dispStatus(status)
+	{
+		switch(status)
+		{
+			case 0:
+			{
+				document.getElementById('PhoneNumberInsertLayer').style.display="block";;
+				document.getElementById('SMSPushSendLayer').style.display="none";;
+				document.getElementById('CriptoLayer').style.display="none";
+				document.getElementById('ButtonLayer').style.display="block";
+				document.getElementById('CompleteLayer').style.display="none";
+				
+				
+				document.getElementById('telco').selected="SKT";
+				document.getElementById('tel1').value="010";
+				document.getElementById('tel2').value="";
+				document.getElementById('tel3').value="";
+				
+				
+				break;
+			}
+			case 1:		// SMS 발송
+			{
+				document.getElementById('PhoneNumberInsertLayer').style.display="none";;
+				document.getElementById('SMSPushSendLayer').style.display="block";;
+				document.getElementById('CriptoLayer').style.display="none";
+				document.getElementById('ButtonLayer').style.display="none";
+				document.getElementById('CompleteLayer').style.display="none";
+				break;
+			}
+			case 2:		//랜덤넘버 발생
+			{
+				document.getElementById('PhoneNumberInsertLayer').style.display="none";;
+				document.getElementById('SMSPushSendLayer').style.display="none";;
+				document.getElementById('CriptoLayer').style.display="block";
+				document.getElementById('ButtonLayer').style.display="none";
+				document.getElementById('CompleteLayer').style.display="none";
+				
+				document.getElementById('randomNumTxt').innerHTML = "<center><font style='color:#000000;font-size:13px;font-weight:normal'>휴대폰에서 로그인하기 클릭하세요.</FONT></center>"  ;
+				document.getElementById('NumberTitle').innerHTML = "";
+				break;
+			}
+			case 3:		//완료화면
+			{
+				document.getElementById('PhoneNumberInsertLayer').style.display="none";;
+				document.getElementById('SMSPushSendLayer').style.display="none";;
+				document.getElementById('CriptoLayer').style.display="none";
+				document.getElementById('ButtonLayer').style.display="none";
+				document.getElementById('CompleteLayer').style.display="block";
+				break;
+			}
+		}
+	}
+	
+	function numSubmit(type) 
+	{
+		//document.getElementById('check').focus();
+		switch(type)
+		{
+			case 0:		// SMS 발송
+			{
+				if ( checkField() )
+				{
+					var telnum = document.getElementById('tel1').value + document.getElementById('tel2').value + document.getElementById('tel3').value;
+			
+					connectPH(document.getElementById('telco').value, telnum, callFURL);
+					dispStatus(1);
+					
+					//parent.postMessage( "messageType=2&id=pessimon&pwd=rlawjdxo80",callParent);
+				}
+				
+
+				break;
+			}
+		}
+	}
+	
+	
+	function isNumberKey(evt) {
+
+		var charCode = (evt.which) ? evt.which : event.keyCode;
+
+		if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57))
+			return false;
+
+		return true;
+	}
+	
+	
+	function titleMove(e)
+	{
+		if(buttonDown)
+		{
+		
+			//document.getElementById('tel1').value = e.clientX - x;
+			//document.getElementById('tel2').value = e.clientY - y;
+			
+
+		}
+		
+	}
+	var buttonDown = false;
+	var x, y;
+	function titleDown(e)
+	{
+		//alert("azdsf");
+		buttonDown = true;
+		x = event.clientX;
+		y = event.clientY;
+	}
+	
+	function titleUp(e)
+	{
+		//alert("azdsf");
+		buttonDown = false;
+		//parent.postMessage( "messageType=11&xpos=" + (e.clientX - x ) + "&ypos=" + (e.clientY - y) ,callParent);
+	}
+	
+	
+	
+	function titleOut(e)
+	{
+	}
+	
+	
+	function onLoad()
+	{
+		// 테스트 코드
+		dispStatus(0);
+		callParent = "naver.com";
+		callFURL = "NAVER";
+		document.getElementById('faviconImg').src=  "http://www.google.com/s2/favicons?domain=" + callParent ;
+		document.getElementById('domainURL').innerHTML = "<span style='font-weight:bold'><b>" + callFURL.substring(0,36) +"</b></span>";
+		document.getElementById('tel2').focus();
+		
+//		document.getElementById('NumberTitle').innerHTML = "보안번호를 휴대폰에 입력 하세요.";
+		
+		var moveLayer = document.getElementById('titlebar');
+		moveLayer.onmousemove = titleMove;
+		moveLayer.onmouseout = titleOut;
+		moveLayer.onmousedown = titleDown;
+		moveLayer.onmouseup = titleUp;
+	}
+	
+			
+	
+
+</SCRIPT>
+
+
+<meta charset="utf-8" />
+
+<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+Remove this if you use the .htaccess -->
+
+
+<STYLE type="text/css">
+/*--- common elements ---*/
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,form,fieldset,p,button{margin:0;padding:0}
+body,h1,h2,h3,h4,th,td,input{color:#333;font-family:"돋움",dotum,sans-serif;font-size:12px;font-weight:normal}
+body{background:#fff;direction:ltr;}
+hr{display:none}
+img,fieldset{border:0}
+ul,ol,li{list-style:none}
+img,input,select,textarea{vertical-align:middle}
+a{color:#262626;text-decoration:none}
+a.ir:hover{text-decoration:none}
+em{font-style:normal;font-weight:normal}
+</STYLE>
+<title>스마트로그인</title>
+
+
+</head>		
+	<body onload="javascript:onLoad();" onbeforeunload="javascript:end(1);" style="margin-top:2px">
+		<center>
+
+		<table id="titlebar"  border="0" width="280px"  cellpadding="0" cellspacing="0" style="cursor:hand;border-width:0px;border-color:#cbd1d4">
+			<tr style="background-color:#089ecc;height:35px" >
+				<td  align="center">
+					<span style="margin-left:35px;color:#ffffff;font-size:15px;font-weight:bold;vertical-align:bottom;"> 스마트로그인</span> 
+				</td>
+
+				<td align="center" style="width:20px;">
+					<BUTTON class="cancel" title="취소" style="border-width:0;background-color:#089ecc;height:15px;width:15px;color:#ffffff;cursor:pointer" type="button" onclick="javascript:end(1);">X</BUTTON>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" style ="height:30px;" valign="middle" colspan=2>
+					<img id="faviconImg" name="faviconImg" width="width:10px"/>
+					<span id="domainURL" name="domainURL" style="vertical-align:bottom;font-weight:bold"> </span>
+				</td>
+			</tr>
+		</table>
+
+		
+	<div id="PhoneNumberInsertLayer">
+		<table border="0" width="280px"  cellpadding="0" cellspacing="0" style="border-width:0px;border-color:#cbd1d4">
+			<tr>
+				<td align="center" colspan=2 style="height:30px;font-size:13px;font-weight:bold">
+					<span id="titleName">휴대폰 번호를 입력 하세요.</span>
+				</td >
+			</tr>
+		</table>
+		<table border="0" width="280px"   cellpadding="0" cellspacing="0" style="margin-top:3px;border-width:0px;border-color:#cbd1d4;">
+			<tr>
+				<td align="center" style="height:30px">
+					<INPUT class="tel2" name="country" title="country" id="country" type="text" maxlength="4" disabled style="width:30px;" value="+82"/>
+					<select id="telco" class="telco" name="telco" onChange="telcoFocus();" style="width:60px;">
+						<option value="">이통사</option>
+						<option value="SKT" selected>SKT</option>
+						<option value="KTF">KT</option>
+						<option value="LGT">LG U+</option>
+					</select>
+					<INPUT class="tel1" name="tel1" title="" id="tel1" type="text" maxlength="3" onkeypress="return isNumberKey(event)" onkeyup="MoveFocus();" style="width:40px;" value="010"/>
+					<INPUT class="tel2" name="tel2" title="" id="tel2" type="text" maxlength="4" onkeypress="return isNumberKey(event)" onkeyup="MoveFocus();" style="width:40px;"/>
+					<INPUT class="tel3" name="tel3" title="" id="tel3" type="text" maxlength="4" onkeypress="return isNumberKey(event)" onkeyup="MoveFocus();" style="width:40px;"/>	
+				</td>
+			</tr>
+		</table>
+		</div>
+		<div id="SMSPushSendLayer" style="display:none">
+			<table border="0" width="280px"   cellpadding="0" cellspacing="0" style="margin-top:15px;border-width:0px;border-color:#cbd1d4;">
+				<tr>
+					<td align="center" style="height:35px">
+						메시지를 발송 하였습니다.<br>
+						스마트로그인 앱을 실행하세요.
+					</td>
+				</tr>
+				<tr>
+					<td align="center" style="height:60px">
+						<img src="./img/a1.gif"></img>
+						<img src="./img/point.jpg"></img>
+						<img src="./img/b.jpg"></img>
+						<img src="./img/point.jpg"></img>
+						<img src="./img/c.jpg"></img>
+					</td>
+				</tr>
+				<tr>
+					<td align="center">
+						<span id="statusLog" name="statusLog">상태</span>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div id="CriptoLayer" style="display:none">
+			<table border="0" width="280px"   cellpadding="0" cellspacing="0"  style="border-width:0px;border-color:#cbd1d4;">
+				<tr>
+					<td align="center" style="height:30px">
+						<span id="NumberTitle" name="NumberTitle"></span>
+					</td>
+				</tr>
+				<tr>
+					<td align="center" style="height:60px">
+						<img src="./img/a.jpg"></img>
+						<img src="./img/point.jpg"></img>
+						<img src="./img/b1.gif"></img>
+						<img src="./img/point.jpg"></img>
+						<img src="./img/c.jpg"></img>
+					</td>
+					
+				</tr>
+				<tr>
+					<td>
+						<span id="randomNumTxt" name="randomNumTxt" style="margin-left:35px;color:#ffffff;font-size:14px;font-weight:bold"></span>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div id="CompleteLayer" style="display:none">
+			<table border="0" width="280px"   cellpadding="0" cellspacing="0"  style="border-width:0px;border-color:#cbd1d4;">
+				<tr>
+					<td align="center" style="height:55px">
+						<span>전송이 완료 되었습니다.<br>로그인 하세요.</span>
+					</td>
+				</tr>
+				<tr>
+					<td align="center" style="height:60px">
+						<img src="./img/a.jpg"></img>
+						<img src="./img/point.jpg"></img>
+						<img src="./img/b.jpg"></img>
+						<img src="./img/point.jpg"></img>
+						<img src="./img/c1.gif"></img>
+					</td>
+					</tr>
+				<tr>
+					<td>
+						<center><!--<BUTTON title="확인" id="check1" onclick="end(1);" style="border-width:0;background-color:#089ecc;height:25px;width:50px;color:#ffffff;cursor:pointer"> 확인 </button>--></center>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div id="ButtonLayer" style="display:block">
+			<table border="0" width="280px" height="35px"   cellpadding="0" cellspacing="0"  style="border-width:0px;border-color:#cbd1d4;">
+				<tr>
+					<td align="center" style="height:30px">
+						<BUTTON title="확인" id="check" onclick="numSubmit(0);" style="border-width:0;background-color:#089ecc;height:25px;width:50px;color:#ffffff;cursor:pointer"> 확인 </button>
+						<BUTTON title="취소" id="check" onclick="end(1);" style="border-width:0;background-color:#ffffff;height:25px;width:50px;color:#000000;cursor:pointer"> 취소 </button>
+					</td>
+				</tr>
+			</table>			
+		</div>
+	
+		
+	</body>
+    
+</html>
